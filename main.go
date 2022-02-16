@@ -6,12 +6,26 @@ import (
 	"os"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v4"
+	"github.com/joho/godotenv"
 )
 
-// using table: tasks
-func dbConnect() {
+func main() {
+	// router := gin.Default()
+	// router.GET("/ping", func(context *gin.Context) {
+	// 	context.JSON(200, gin.H{
+	// 		"message": "pong",
+	// 	})
+	// })
+	// router.Run()
+
+	envErr := godotenv.Load(".env")
+	if envErr != nil {
+		fmt.Printf("could not load .env variable")
+		os.Exit(1)
+	} else {
+		fmt.Printf(".env loaded")
+	}
 
 	conn, err := pgx.Connect(context.Background(), os.Getenv("DB_URL"))
 	if err != nil {
@@ -39,16 +53,4 @@ func dbConnect() {
 	fmt.Println(rows)
 
 	fmt.Println("Connected to sql db")
-}
-
-func main() {
-	router := gin.Default()
-	router.GET("/ping", func(context *gin.Context) {
-		context.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
-	router.Run()
-
-	dbConnect()
 }
