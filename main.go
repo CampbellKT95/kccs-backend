@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v4"
@@ -12,25 +13,32 @@ import (
 // using table: tasks
 func dbConnect() {
 
-	conn, err := pgx.Connect(context.Background(), os.Getenv(DB_URL))
+	conn, err := pgx.Connect(context.Background(), os.Getenv("DB_URL"))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 		os.Exit(1)
 	}
 	defer conn.Close(context.Background())
 
-	var name string
-	var description string
-	// what data type is a date?
-	var dueDate Time
-	var status boolean
-
-	err = conn.QueryRow(context.Background(), "select * from tasks", 42).Scan(&name, &description, &dueDate, &status)
+	rows, err := conn.Query(context.Background(), "select name from tasks")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
 		os.Exit(1)
 	}
-	fmt.Println(name, description, dueDate, status)
+	defer rows.Close()
+
+	var name string
+	var description string
+	var dueDate time.Time
+	var status bool
+
+	if err := rows.Scan(&name, &description, &dueDate, &status); err != nil {
+		fmt.Fprintf(os.Stderr, "scan failed")
+	}
+
+	fmt.Println(rows)
+
+	fmt.Println("Connected to sql db")
 }
 
 func main() {
