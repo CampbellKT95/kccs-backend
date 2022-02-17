@@ -1,53 +1,16 @@
-package main
+package db
 
 import (
-	//personal packages
-
-	//"db"
-
-	// standard library
 	"context"
 	"fmt"
-	"gin"
-	"net/http"
 	"os"
 	"time"
 
-	//additional libraries
-	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v4"
 	"github.com/joho/godotenv"
 )
 
-func getTasks(context *gin.Context) {
-	name := context.DefaultQuery("name")
-	description := context.DefaultQuery("description")
-	dueDate := context.DefaultQuery("dueDate")
-	status := context.DefaultQuery("status")
-
-	context.IndentedJSON(http.StatusOK, name, description, dueDate, status)
-}
-
-func createTask(context *gin.Context) {
-
-}
-
-// https://github.com/gin-gonic/gin
-
-func main() {
-	//connect to db
-	db.dbConnect()
-
-	//establishing router
-	router := gin.Default()
-
-	//fetch all tasks
-	router.GET("/tasks", getTasks)
-
-	router.Run()
-
-	// ----------------------------------------------
-	// ----------------------------------------------
+func dbConnect() {
 
 	//connecting to postgresql
 	envErr := godotenv.Load(".env")
