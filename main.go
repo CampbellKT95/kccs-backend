@@ -34,7 +34,7 @@ func main() {
 	}
 	defer conn.Close(context.Background())
 
-	rows, err := conn.Query(context.Background(), "select name from tasks")
+	rows, err := conn.Query(context.Background(), "select * from tasks")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
 		os.Exit(1)
@@ -46,11 +46,20 @@ func main() {
 	var dueDate time.Time
 	var status bool
 
-	if err := rows.Scan(&name, &description, &dueDate, &status); err != nil {
-		fmt.Fprintf(os.Stderr, "scan failed")
-	}
+	for rows.Next() {
 
-	fmt.Println(rows)
+		err = rows.Scan(&name, &description, &dueDate, &status)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "scan failed")
+		}
+
+		fmt.Println(name)
+	}
+	fmt.Println(name)
+
+	if rows.Err() != nil {
+		fmt.Fprintf(os.Stderr, "query failed", rows.Err())
+	}
 
 	fmt.Println("Connected to sql db")
 }
