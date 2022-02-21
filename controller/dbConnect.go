@@ -1,4 +1,4 @@
-package db
+package controller
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func dbConnect() {
+func DbConnect() {
 
 	//connecting to postgresql
 	envErr := godotenv.Load(".env")
