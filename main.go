@@ -21,7 +21,7 @@ func main() {
 	//fetch all tasks
 	router.GET("/tasks", controller.GetTasks)
 
-	router.Run()
-
 	fmt.Println("server running")
+
+	router.Run()
 }
