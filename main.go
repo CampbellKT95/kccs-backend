@@ -20,6 +20,7 @@ func main() {
 
 	//fetch all tasks
 	router.GET("/tasks", controller.GetTasks)
+	router.POST("/tasks", controller.CreateTask)
 
 	fmt.Println("server running")
 

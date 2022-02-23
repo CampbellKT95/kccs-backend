@@ -2,14 +2,23 @@ package controller
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-func GetTasks(context *gin.Context) {
-	rows, err := Db.Query(context, `select * from tasks`)
+type Task struct {
+	name        string
+	description string
+	dueDate     time.Time
+	status      bool
+}
+
+// fetching all tasks currently open
+func GetTasks(conn *gin.Context) {
+	rows, err := Db.Query(conn, `select * from tasks`)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -21,8 +30,9 @@ func GetTasks(context *gin.Context) {
 	var dueDate time.Time
 	var status bool
 
+	//ranging over rows, one at a time
 	for rows.Next() {
-		err = rows.Scan(&name, &description, &dueDate, &status)
+		err := rows.Scan(&name, &description, &dueDate, &status)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "scan failed")
 		}
@@ -31,10 +41,19 @@ func GetTasks(context *gin.Context) {
 	}
 
 	if rows.Err() != nil {
-		fmt.Fprintf(os.Stderr, "query failed")
+		log.Fatal("error scanning rows", err)
 	}
 }
 
-func CreateTask(context *gin.Context) {
+func CreateTask(conn *gin.Context) {
 
+	// stmt := `INSERT INTO tasks (name, description, dueDate, status) VALUES (?, ?, ?, ?)`
+	// _, err = Db.Exec(conn, stmt, "cook", "make dinner", "2022-03-10", "false")
+
+	stmt, err := Db.Exec(conn, `INSERT INTO tasks (name, description, due_date, status) VALUES ('rest', 'like, take a nap?', '2022-02-23', false)`)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("entry added", stmt)
 }
