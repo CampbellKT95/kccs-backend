@@ -50,7 +50,12 @@ func CreateTask(conn *gin.Context) {
 	// stmt := `INSERT INTO tasks (name, description, dueDate, status) VALUES (?, ?, ?, ?)`
 	// _, err = Db.Exec(conn, stmt, "cook", "make dinner", "2022-03-10", "false")
 
-	stmt, err := Db.Exec(conn, `INSERT INTO tasks (name, description, due_date, status) VALUES ('rest', 'like, take a nap?', '2022-02-23', false)`)
+	// stmt, err := Db.Exec(conn, `INSERT INTO tasks (name, description, due_date, status) VALUES ('rest', 'like, take a nap?', '2022-02-23', false)`)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	stmt, err := Db.Exec(conn, `INSERT INTO tasks (name, description, due_date, status) VALUES ($1, $2, $3, $4)`, `play`, `video games, maybe sekiro?`, `2022-02-24`, false)
 	if err != nil {
 		log.Fatal(err)
 	}
