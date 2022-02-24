@@ -1,9 +1,12 @@
 package controller
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -46,19 +49,31 @@ func GetTasks(conn *gin.Context) {
 }
 
 func CreateTask(conn *gin.Context) {
+	var parsedData Task
 
-	// stmt := `INSERT INTO tasks (name, description, dueDate, status) VALUES (?, ?, ?, ?)`
-	// _, err = Db.Exec(conn, stmt, "cook", "make dinner", "2022-03-10", "false")
-
-	// stmt, err := Db.Exec(conn, `INSERT INTO tasks (name, description, due_date, status) VALUES ('rest', 'like, take a nap?', '2022-02-23', false)`)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	stmt, err := Db.Exec(conn, `INSERT INTO tasks (name, description, due_date, status) VALUES ($1, $2, $3, $4)`, `play`, `video games, maybe sekiro?`, `2022-02-24`, false)
+	// takes in the json from post request
+	jsonData, err := ioutil.ReadAll(conn.Request.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println("entry added", stmt)
+	//below shows we are successfully retreiving the data from post request. how do we parse it correctly?
+	jsonbody := string(jsonData)
+
+	fmt.Println(jsonbody)
+
+	decoder := json.NewDecoder(strings.NewReader(string(jsonData)))
+
+	_ = decoder.Decode(&parsedData)
+
+	fmt.Printf("received data: %s:%s/n", parsedData.name, parsedData.description)
+
+	//BELOW STATEMENT WORKS, BUT HOW CAN I GET THE BODY DATA TO INSERT INTO THE PREPARED STATEMENT?
+
+	// stmt, err := Db.Exec(conn, `INSERT INTO tasks (name, description, due_date, status) VALUES ($1, $2, $3, $4)`, `play`, `video games, maybe sekiro?`, `2022-02-24`, false)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// fmt.Println("entry added", stmt)
 }
