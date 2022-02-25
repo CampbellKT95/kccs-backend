@@ -5,18 +5,16 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
-	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Task struct {
-	name        string
-	description string
-	dueDate     time.Time
-	status      bool
+	Name        string `json: "name"`
+	Description string `json: "description"`
+	Status      string `json: "status"`
 }
 
 // fetching all tasks currently open
@@ -30,17 +28,16 @@ func GetTasks(conn *gin.Context) {
 
 	var name string
 	var description string
-	var dueDate time.Time
 	var status bool
 
 	//ranging over rows, one at a time
 	for rows.Next() {
-		err := rows.Scan(&name, &description, &dueDate, &status)
+		err := rows.Scan(&name, &description, &status)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "scan failed")
 		}
 
-		fmt.Println(name, description, dueDate, status)
+		fmt.Println(name, description, status)
 	}
 
 	if rows.Err() != nil {
@@ -49,31 +46,36 @@ func GetTasks(conn *gin.Context) {
 }
 
 func CreateTask(conn *gin.Context) {
-	var parsedData Task
-
 	// takes in the json from post request
 	jsonData, err := ioutil.ReadAll(conn.Request.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	//below shows we are successfully retreiving the data from post request. how do we parse it correctly?
-	jsonbody := string(jsonData)
+	fmt.Println(string(jsonData))
 
-	fmt.Println(jsonbody)
+	var parsedData Task
 
-	decoder := json.NewDecoder(strings.NewReader(string(jsonData)))
+	//will need to loop through the jsonData & parse seperately since time needs a specific method for parsing
+	err = json.Unmarshal(jsonData, &parsedData)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	_ = decoder.Decode(&parsedData)
+	log.Println(parsedData.Name)
 
-	fmt.Printf("received data: %s:%s/n", parsedData.name, parsedData.description)
+	//can supposedly reuse body data with the below code?
+	// conn.Request.Body = ioutil.NopCloser(bytes.NewBuffer(jsonData))
 
-	//BELOW STATEMENT WORKS, BUT HOW CAN I GET THE BODY DATA TO INSERT INTO THE PREPARED STATEMENT?
+	//returns data to clientside
+	conn.Data(http.StatusOK, "application/json", jsonData)
 
-	// stmt, err := Db.Exec(conn, `INSERT INTO tasks (name, description, due_date, status) VALUES ($1, $2, $3, $4)`, `play`, `video games, maybe sekiro?`, `2022-02-24`, false)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	// --------------------
 
-	// fmt.Println("entry added", stmt)
+	stmt, err := Db.Exec(conn, `INSERT INTO tasks (name, description, status) VALUES ($1, $2, $3)`, parsedData.Name, parsedData.Description, parsedData.Status)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("entry added", stmt)
 }
