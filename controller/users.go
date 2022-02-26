@@ -12,11 +12,13 @@ import (
 )
 
 type Task struct {
+	Id          string `json:"id"`
 	Name        string `json: "name"`
 	Description string `json: "description"`
-	Status      string `json: "status"`
+	Status      bool   `json: "status"`
 }
 
+// ------------------------------------------------------------------------
 // fetching all tasks currently open
 func GetTasks(conn *gin.Context) {
 	rows, err := Db.Query(conn, `select * from tasks`)
@@ -26,25 +28,31 @@ func GetTasks(conn *gin.Context) {
 	}
 	defer rows.Close()
 
-	var name string
-	var description string
-	var status bool
+	// var Id string
+	// var Name string
+	// var Description string
+	// var Status bool
+
+	var tasks []Task
 
 	//ranging over rows, one at a time
 	for rows.Next() {
-		err := rows.Scan(&name, &description, &status)
+		var task Task
+		err := rows.Scan(&task.Id, &task.Name, &task.Description, &task.Status)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "scan failed")
+			log.Fatal(err)
 		}
 
-		fmt.Println(name, description, status)
+		tasks = append(tasks, task)
+		fmt.Println(tasks)
 	}
 
 	if rows.Err() != nil {
-		log.Fatal("error scanning rows", err)
+		log.Fatal(err)
 	}
 }
 
+// ------------------------------------------------------------------------
 func CreateTask(conn *gin.Context) {
 	// takes in the json from post request
 	jsonData, err := ioutil.ReadAll(conn.Request.Body)
@@ -72,10 +80,16 @@ func CreateTask(conn *gin.Context) {
 
 	// --------------------
 
-	stmt, err := Db.Exec(conn, `INSERT INTO tasks (name, description, status) VALUES ($1, $2, $3)`, parsedData.Name, parsedData.Description, parsedData.Status)
+	stmt, err := Db.Exec(conn, `INSERT INTO tasks (id, name, description, status) VALUES ($1, $2, $3, $4)`, parsedData.Id, parsedData.Name, parsedData.Description, parsedData.Status)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	fmt.Println("entry added", stmt)
 }
+
+// ------------------------------------------------------------------------
+// func UpdateTask() {}
+
+// ------------------------------------------------------------------------
+// func DeleteTask() {}

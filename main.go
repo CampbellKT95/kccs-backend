@@ -21,6 +21,8 @@ func main() {
 	//fetch all tasks
 	router.GET("/tasks", controller.GetTasks)
 	router.POST("/tasks", controller.CreateTask)
+	// router.PUT("/tasks/:id", controller.UpdateTask)
+	// router.DELETE("/tasks/:id", controller.DeleteTask)
 
 	fmt.Println("server running")
 
