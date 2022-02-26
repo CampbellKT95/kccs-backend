@@ -47,6 +47,11 @@ func GetTasks(conn *gin.Context) {
 		fmt.Println(tasks)
 	}
 
+	//encodes the tasks into json
+	response, err := json.Marshal(tasks)
+
+	conn.Data(http.StatusOK, "application/json", response)
+
 	if rows.Err() != nil {
 		log.Fatal(err)
 	}
