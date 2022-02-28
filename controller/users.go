@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -94,7 +95,19 @@ func CreateTask(conn *gin.Context) {
 }
 
 // ------------------------------------------------------------------------
-// func UpdateTask() {}
+func UpdateTask(conn *gin.Context) {
+
+	//grabs everything after the base url, (/tasks/:id)
+	url := conn.Request.RequestURI
+
+	//splits the retrieved url, then grabs the second value (what comes after tasks)
+	editedTask := strings.Split(url, "/")[1]
+
+	fmt.Println(editedTask)
+
+	//now need to update it in db
+
+}
 
 // ------------------------------------------------------------------------
 // func DeleteTask() {}
