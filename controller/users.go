@@ -101,12 +101,30 @@ func UpdateTask(conn *gin.Context) {
 	url := conn.Request.RequestURI
 
 	//splits the retrieved url, then grabs the second value (what comes after tasks)
-	editedTask := strings.Split(url, "/")[1]
+	editedTask := strings.Split(url, "/")[2]
 
-	fmt.Println(editedTask)
+	// grabs body of the put request (ie the things that will replace the original content)
+	jsonData, err := ioutil.ReadAll(conn.Request.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	//now need to update it in db
+	var parsedData Task
 
+	//will need to loop through the jsonData & parse seperately since time needs a specific method for parsing
+	err = json.Unmarshal(jsonData, &parsedData)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	stmt, err := Db.Exec(conn, `UPDATE tasks SET (id, name, description, status) = ($1, $2, $3, $4) WHERE id = $5`, parsedData.Id, parsedData.Name, parsedData.Description, parsedData.Status, editedTask)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("entry updated", stmt)
+	conn.Data(http.StatusOK, "application/json", stmt)
 }
 
 // ------------------------------------------------------------------------
