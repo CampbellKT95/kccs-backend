@@ -128,4 +128,19 @@ func UpdateTask(conn *gin.Context) {
 }
 
 // ------------------------------------------------------------------------
-// func DeleteTask() {}
+func DeleteTask(conn *gin.Context) {
+	//grabs everything after the base url, (/tasks/:id)
+	url := conn.Request.RequestURI
+
+	//splits the retrieved url, then grabs the second value (what comes after tasks)
+	editedTask := strings.Split(url, "/")[2]
+
+	stmt, err := Db.Exec(conn, `DELETE FROM tasks WHERE id=$1`, editedTask)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("entry deleted", stmt)
+	conn.Data(http.StatusOK, "application/json", stmt)
+}
