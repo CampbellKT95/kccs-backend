@@ -29,11 +29,6 @@ func GetTasks(conn *gin.Context) {
 	}
 	defer rows.Close()
 
-	// var Id string
-	// var Name string
-	// var Description string
-	// var Status bool
-
 	var tasks []Task
 
 	//ranging over rows, one at a time
