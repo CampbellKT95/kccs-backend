@@ -1,4 +1,4 @@
-package twitter
+package bots
 
 import (
 	"fmt"
