@@ -3,8 +3,8 @@ package bots
 import (
 	"encoding/json"
 	"log"
-	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/gocolly/colly"
 )
 
@@ -21,8 +21,8 @@ type Stock struct {
 	TopStory News
 }
 
-func StockScrap(w http.ResponseWriter, r *http.Request) {
-	URL := r.URL.Query().Get("url")
+func StockScrap(conn *gin.Context) {
+	URL := conn.Request.URL.Query().Get("url")
 	if URL == "" {
 		log.Fatal("request does not have a url")
 	}
@@ -56,6 +56,5 @@ func StockScrap(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	w.Header().Add("Content-type", "application/json")
-	w.Write(info)
+	conn.JSON(200, string(info))
 }

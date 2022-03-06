@@ -3,8 +3,8 @@ package bots
 import (
 	"encoding/json"
 	"log"
-	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/gocolly/colly"
 )
 
@@ -14,10 +14,9 @@ type Response struct {
 	Link     string
 }
 
-//scrap from bbc headlines as practice. works correctly
-func NewsScrap(w http.ResponseWriter, r *http.Request) {
+func NewsScrap(conn *gin.Context) {
 	// verify the param url exists from the request. grabs param variable 'url'
-	URL := r.URL.Query().Get("url")
+	URL := conn.Request.URL.Query().Get("url")
 	if URL == "" {
 		log.Fatal("request does not have a url")
 	}
@@ -55,6 +54,5 @@ func NewsScrap(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//return response to user
-	w.Header().Add("Content-type", "application/json")
-	w.Write(info)
+	conn.JSON(200, string(info))
 }
